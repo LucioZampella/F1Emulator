@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import MagicMock
 import pandas as pd
-from querys.SessionQuery import SessionQuerys
-import errors.Errors as e
+from python.f1fast.main.querys.SessionQuery import SessionQuerys
+import python.f1fast.main.errors.Errors as e
 
 
 class TestSessionQuerys(unittest.TestCase):
@@ -23,7 +23,7 @@ class TestSessionQuerys(unittest.TestCase):
 
     def test_get_driver_teammate_success(self):
         teammate = self.queries.get_driver_teammate("1")
-        self.assertEqual(teammate, "11")
+        self.assertEqual(teammate.DriverNumber, "11")
 
     def test_get_driver_teammate_not_found(self):
         with self.assertRaises(e.DriverNotFoundError):
@@ -36,6 +36,10 @@ class TestSessionQuerys(unittest.TestCase):
     def test_get_driver_number_lastname_error(self):
         with self.assertRaises(e.DriverNotFoundError):
             self.queries.get_driver_number_from_lastname("Colapinto")
+
+    def test_get_team_drivers_success(self):
+        drivers = self.queries.get_team_drivers("Red Bull")
+        self.assertEqual(drivers, ["1", "11"])
 
 
 if __name__ == "__main__":

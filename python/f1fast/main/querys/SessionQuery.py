@@ -1,6 +1,9 @@
 import fastf1
-import errors.Errors as e
-from validators.F1Validator import F1Validator
+import python.f1fast.main.errors.Errors as e
+from python.f1fast.main.validators.DriverValidator import DriverValidator as dv
+from python.f1fast.main.validators.SessionValidator import SessionValidator as sv
+from python.f1fast.main.validators.TeamValidator import TeamValidator as tv
+from python.f1fast.main.TimeParser import TimeParser as tp
 
 class SessionQuerys:
 
@@ -8,10 +11,10 @@ class SessionQuerys:
         self.session = session
 
 
-    def get_driver_teammate(self, driver_number: str) -> str:
+    def get_driver_teammate(self, driver_number: str):
         results = self.session.results
 
-        F1Validator.validate_driver_exists(results, driver_number)
+        dv.validate_driver_exists(results, driver_number)
 
         teamnameFilter = results["DriverNumber"] == driver_number
         driver_team = results[teamnameFilter]["TeamName"].iloc[0]
@@ -23,8 +26,7 @@ class SessionQuerys:
         if filtered.empty:
             raise e.DriverNotFoundError(f"Driver {driver_number} teammate was not found in this session")
         else:
-            teammate = filtered["DriverNumber"].iloc[0]
-
+            teammate = filtered.iloc[0]
         return teammate
 
     def get_driver_number_from_lastname(self, driver_lastname: str) -> str:
@@ -36,13 +38,28 @@ class SessionQuerys:
         filter = results["LastName"] == driver_lastname
         return results[filter]["DriverNumber"].iloc[0]
 
-    def get_driver_racepace(self, driver_number: str) -> str:
+
+    def get_driver_qualifying_pace(self, driver_number: str) -> float:
         results = self.session.results
 
-        F1Validator.validate_driver_exists(results, driver_number)
-        
+        dv.validate_driver_exists(results, driver_number)
+        sv.validate_qualy(self.session)
 
+        filter = results["DriverNumber"] == driver_number
+        qualy_laps = []
+        i = 1
+        while i < 4:
+            time = results[filter][f"Q{i}"].iloc[0]
+            lap = tp.get_lap_in_seconds(time)
+            qualy_laps.append(lap)
+            i += 1
 
+        return min(qualy_laps)
 
+    def get_team_drivers(self, team_name: str) -> list:
+        results = self.session.results
+        tv.validate_team_exists(results, team_name)
+        filter = results["TeamName"] = team_name
+        return list(results[filter]["DriverNumber"])
 
 
