@@ -1,14 +1,20 @@
 import fastf1
+import pandas as pd
+from pandas import DataFrame
+
 import python.f1fast.main.errors.Errors as e
 from python.f1fast.main.validators.DriverValidator import DriverValidator as dv
 from python.f1fast.main.validators.SessionValidator import SessionValidator as sv
 from python.f1fast.main.validators.TeamValidator import TeamValidator as tv
+from python.f1fast.main.validators.LapsValidator import LapsValidator as lv
 from python.f1fast.main.TimeParser import TimeParser as tp
+from python.f1fast.main.filters.LapFilter import LapFilter
 
 class SessionQuerys:
 
     def __init__(self, session):
         self.session = session
+        self.lap_filter = LapFilter()
 
 
     def get_driver_teammate(self, driver_number: str):
@@ -50,16 +56,30 @@ class SessionQuerys:
         i = 1
         while i < 4:
             time = results[filter][f"Q{i}"].iloc[0]
-            lap = tp.get_lap_in_seconds(time)
+            lap = tp.get_qualy_lap_in_seconds(time)
             qualy_laps.append(lap)
             i += 1
-
         return min(qualy_laps)
+
+    def get_driver_clean_laps(self, driver_number: str) -> DataFrame | None:
+        results = self.session.results
+
+        dv.validate_driver_exists(results, driver_number)
+        sv.validate_race(self.session)
+        
+        all_laps = self.session.laps.pick_quicklaps()
+        driver_laps = all_laps.pick_drivers(driver_number)
+        clean_laps = self.lap_filter.filter_clean_air_laps(driver_laps, all_laps)
+        clean_laps = self.lap_filter.filter_consecutive_tyre_laps(clean_laps)
+
+        if clean_laps.empty:
+            return None
+        return clean_laps
 
     def get_team_drivers(self, team_name: str) -> list:
         results = self.session.results
         tv.validate_team_exists(results, team_name)
-        filter = results["TeamName"] = team_name
+        filter = results["TeamName"] == team_name
         return list(results[filter]["DriverNumber"])
 
 
