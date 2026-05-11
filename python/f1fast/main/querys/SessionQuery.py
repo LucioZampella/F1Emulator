@@ -1,6 +1,7 @@
 import fastf1
 import pandas as pd
 from pandas import DataFrame
+from fastf1.core import Laps
 
 import python.f1fast.main.errors.Errors as e
 from python.f1fast.main.validators.DriverValidator import DriverValidator as dv
@@ -61,7 +62,7 @@ class SessionQuerys:
             i += 1
         return min(qualy_laps)
 
-    def get_driver_clean_laps(self, driver_number: str) -> DataFrame | None:
+    def get_driver_clean_laps(self, driver_number: str) -> Laps | None:
         results = self.session.results
 
         dv.validate_driver_exists(results, driver_number)
@@ -69,11 +70,7 @@ class SessionQuerys:
         
         all_laps = self.session.laps.pick_quicklaps()
         driver_laps = all_laps.pick_drivers(driver_number)
-        clean_laps = self.lap_filter.filter_clean_air_laps(driver_laps, all_laps)
-        clean_laps = self.lap_filter.filter_consecutive_tyre_laps(clean_laps)
-
-        if clean_laps.empty:
-            return None
+        clean_laps = self.lap_filter.filter_clean_air_laps(driver_laps)
         return clean_laps
 
     def get_team_drivers(self, team_name: str) -> list:
@@ -81,5 +78,15 @@ class SessionQuerys:
         tv.validate_team_exists(results, team_name)
         filter = results["TeamName"] == team_name
         return list(results[filter]["DriverNumber"])
+
+    def get_driver_team(self, driver_number: str) -> str:
+        results = self.session.results
+
+        dv.validate_driver_exists(results, driver_number)
+
+        teamnameFilter = results["DriverNumber"] == driver_number
+        driver_team = results[teamnameFilter]["TeamName"].iloc[0]
+
+        return driver_team
 
 

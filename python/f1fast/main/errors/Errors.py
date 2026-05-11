@@ -18,3 +18,6 @@ class SessionLoadError(systemError):
 
 class InvalidTimeFormatError(systemError):
     pass
+
+class InvalidYearError(systemError):
+    pass
