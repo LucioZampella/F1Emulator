@@ -1,21 +1,16 @@
-import fastf1
-import pandas as pd
-from pandas import DataFrame
 from fastf1.core import Laps
 
 import python.f1fast.main.errors.Errors as e
 from python.f1fast.main.validators.DriverValidator import DriverValidator as dv
 from python.f1fast.main.validators.SessionValidator import SessionValidator as sv
 from python.f1fast.main.validators.TeamValidator import TeamValidator as tv
-from python.f1fast.main.validators.LapsValidator import LapsValidator as lv
 from python.f1fast.main.TimeParser import TimeParser as tp
-from python.f1fast.main.filters.LapFilter import LapFilter
+import python.f1fast.main.filters.LapFilter as LapFilter
 
 class SessionQuerys:
 
     def __init__(self, session):
         self.session = session
-        self.lap_filter = LapFilter()
 
 
     def get_driver_teammate(self, driver_number: str):
@@ -70,7 +65,7 @@ class SessionQuerys:
         
         all_laps = self.session.laps.pick_quicklaps()
         driver_laps = all_laps.pick_drivers(driver_number)
-        clean_laps = self.lap_filter.filter_clean_air_laps(driver_laps)
+        clean_laps = LapFilter.filter_clean_air_laps(driver_laps)
         return clean_laps
 
     def get_team_drivers(self, team_name: str) -> list:
@@ -89,4 +84,6 @@ class SessionQuerys:
 
         return driver_team
 
-
+    def get_driver_compounds_at_session(self, driver_number: str) -> list:
+        laps = self.session.laps.pick_drivers(driver_number)
+        return list(laps["Compound"].unique())

@@ -1,6 +1,5 @@
-from python.f1fast.main.comparisonClasses.RacePaceDiffDataclass import RacePaceDiff
+from python.f1fast.main.comparisonClasses.dataclasses.RacePaceDiffDataclass import RacePaceDiff
 from python.f1fast.main.paceDiffCalculator.RacePaceDiffCalculator import RacePaceDiffCalculator
-from python.f1fast.main.querys.SessionQuery import SessionQuerys
 import fastf1
 from python.f1fast.main.querys.ScheduleQuery import ScheduleQuery
 from python.f1fast.main.validators.TeamValidator import TeamValidator as tv
