@@ -6,7 +6,7 @@ import python.f1fast.main.comparisonClasses.racePaceComparator.RPComparationMath
 
 
 def compare(laps_1: Laps, laps_2: Laps) -> float | None:
-    if lg.guarantee_valid_laps(laps_1, laps_2):
+    if not lg.guarantee_valid_laps(laps_1, laps_2):
         return None
 
     both = LapFilter.get_both_compounds(laps_1, laps_2)
@@ -14,9 +14,16 @@ def compare(laps_1: Laps, laps_2: Laps) -> float | None:
     final_weight = 0
 
     for compound in both:
-        temp_delta, temp_weight = maths.refactor_delta_with_ponderation(laps_1, laps_2, compound, final_weight)
-        final_delta += temp_delta
+        result = maths.refactor_delta_with_ponderation(laps_1, laps_2, compound, final_weight)
+
+        if result is None:
+            return None
+
+        temp_delta, temp_weight, faster_avg = result
+
+        final_delta += (temp_delta / faster_avg) * 100
         final_weight = temp_weight
 
     diff = final_delta / final_weight
+
     return diff

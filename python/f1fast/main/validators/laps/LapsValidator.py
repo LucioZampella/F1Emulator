@@ -6,7 +6,7 @@ def validate_laps_arent_empty(laps: Laps) -> bool:
     return (laps is not None)
 
 def validate_laps_in_stint_are_enough(laps: Laps) -> bool:
-    if (validate_laps_arent_empty(laps)):
+    if validate_laps_arent_empty(laps):
         return len(laps["LapTime"].values) >= 8
     else:
         return False

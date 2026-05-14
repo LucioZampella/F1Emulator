@@ -42,8 +42,8 @@ def adjust_fuel_consumption(laps_1: Laps,
 
 def filter_laps_for_compound(laps: Laps, compound: str) -> Laps | None:
     if lv.validate_laps_arent_empty(laps):
-        return None
-    return laps[laps["Compound"] == compound]
+        return laps[laps["Compound"] == compound]
+    return None
 
 def get_both_compounds(laps1: Laps, laps2: Laps) -> set:
     laps1 = set(laps1["Compound"].unique())

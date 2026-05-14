@@ -1,4 +1,4 @@
-from python.f1fast.main.querys.SessionQuery import SessionQuerys
+import python.f1fast.main.querys.SessionQuery as sq
 from python.f1fast.main.comparisonClasses.dataclasses.RacePaceDiffDataclass import SessionRacePaceDiff
 from python.f1fast.main.validators.SessionValidator import SessionValidator as sv
 from python.f1fast.main.validators.TeamValidator import TeamValidator as tv
@@ -9,20 +9,19 @@ class RacePaceDiffCalculator:
 
     def __init__(self, session):
         self.session = session
-        self.sq = SessionQuerys(self.session)
         self.result = self.session.results
 
     def get_rdiff_teammates_team(self, team: str) -> SessionRacePaceDiff | None:
         tv.validate_team_exists(self.result, team)
-        drivers = self.sq.get_team_drivers(team)
+        drivers = sq.get_team_drivers(team, self.session)
         
         sv.validate_race(self.session)
         
         driver1_number = drivers[0]
         driver2_number = drivers[1]
 
-        laps_driver1 = self.sq.get_driver_clean_laps(driver1_number)
-        laps_driver2 = self.sq.get_driver_clean_laps(driver2_number)
+        laps_driver1 = sq.get_driver_clean_laps(driver1_number, self.session)
+        laps_driver2 = sq.get_driver_clean_laps(driver2_number, self.session)
 
         if laps_driver1 is None or laps_driver2 is None:
             return None
@@ -50,10 +49,10 @@ class RacePaceDiffCalculator:
 
     def get_rdiff_teammates_driver(self, driver1_number) -> SessionRacePaceDiff | None:
         dv.validate_driver_exists(self.result, driver1_number)
-        driver2 = self.sq.get_driver_teammate(driver1_number)
+        driver2 = sq.get_driver_teammate(driver1_number)
 
-        laps_driver1 = self.sq.get_driver_clean_laps(driver1_number)
-        laps_driver2 = self.sq.get_driver_clean_laps(driver2.DriverNumber)
+        laps_driver1 = sq.get_driver_clean_laps(driver1_number)
+        laps_driver2 = sq.get_driver_clean_laps(driver2.DriverNumber)
 
         if laps_driver1 is None or laps_driver2 is None:
             return None
@@ -74,7 +73,7 @@ class RacePaceDiffCalculator:
             faster_driver_number = driver2.DriverNumber
             slower_driver_number = driver1_number
 
-        team = self.sq.get_driver_team(driver1_number)
+        team = sq.get_driver_team(driver1_number)
 
         return SessionRacePaceDiff(driver1_number, driver2.DriverNumber,
                                    team, self.session, avg_driver1, avg_driver2, delta,

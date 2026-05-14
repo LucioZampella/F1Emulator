@@ -7,9 +7,7 @@ from python.f1fast.main.validators.TeamValidator import TeamValidator as tv
 
 class RacePacePeriodDiff:
 
-    def __init__(self, year: int):
-        self.year = year
-        schedule = fastf1.get_event_schedule(year)
+    def __init__(self, schedule):
         sq = ScheduleQuery(schedule)
         self.sessions = sq.get_all_race_sessions()
 
@@ -23,20 +21,34 @@ class RacePacePeriodDiff:
         for race in self.sessions:
             try:
                 tv.validate_team_exists(race.results, team)
+
                 calculator = RacePaceDiffCalculator(race)
                 diff = calculator.get_rdiff_teammates_team(team)
 
-                if diff is not None:
-                    results.append(diff.delta)
+                if diff is not None and diff.delta is not None:
+                    driver1_as_int = int(diff.driver1_number)
+                    driver2_as_int = int(diff.driver2_number)
+
+                    if driver1_as_int > driver2_as_int:
+                        normalized_delta = -diff.delta
+                        drivernumber_1 = diff.driver2_number
+                        drivernumber_1 = diff.driver1_number
+                    else:
+                        normalized_delta = diff.delta
+                        drivernumber_1 = diff.driver1_number
+                        drivernumber_2 = diff.driver2_number
+
+                    results.append(normalized_delta)
+
                     faster_driver_number = diff.faster_driver_number
                     slower_driver_number = diff.slower_driver_number
-                    drivernumber_1 = diff.driver1_number
-                    drivernumber_2 = diff.driver2_number
 
-            except Exception:
+
+            except Exception as e:
+                print(f"{team} | {race.event['EventName']} | {e}")
                 continue
 
-        if not results or drivernumber_1 is None:
+        if not results:
             return None
 
         delta = sum(results) / len(results)
