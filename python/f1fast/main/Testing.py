@@ -1,10 +1,12 @@
 import fastf1
 
 from python.f1fast.main.periodDiffCalculator.RacePacePeriodDiffCalculator import RacePacePeriodDiff
+import python.f1fast.main.querys.ScheduleQuery as sq
 
 schedule = fastf1.get_event_schedule(2026)
 new_schedule = schedule[schedule["RoundNumber"] <= 4]
 calculator = RacePacePeriodDiff(new_schedule)
+sessions = sq.get_all_racing_sessions(new_schedule)
 
 first_event = new_schedule.get_event_by_round(1)
 first_race = first_event.get_race()
@@ -12,7 +14,7 @@ first_race.load()
 teams = first_race.results["TeamName"].unique()
 
 for team in teams:
-    result = calculator.get_season_avg_teammates_racediff_by_team(team)
+    result = calculator.get_season_avg_teammates_racediff_by_team(team, sessions)
 
     if result is None:
         print(f"No data for {team}")

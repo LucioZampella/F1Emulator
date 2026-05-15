@@ -67,7 +67,8 @@ def get_team_drivers(team_name: str, session: Session) -> list:
     results = session.results
     tv.validate_team_exists(results, team_name)
     filter = results["TeamName"] == team_name
-    return list(results[filter]["DriverNumber"])
+    drivers = sorted(results[filter]["DriverNumber"], key=int)
+    return list(drivers)
 
 def get_driver_team(driver_number: str, session: Session) -> str:
     results = session.results

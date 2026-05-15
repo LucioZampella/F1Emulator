@@ -30,12 +30,10 @@ class RacePaceDiffCalculator:
 
         delta = drpc.compare(laps_driver1, laps_driver2)
 
-        if avg_driver1 is None or avg_driver2 is None:
+        if avg_driver1 is None or avg_driver2 is None or delta is None:
             return None
 
-        avg_min = min(avg_driver1, avg_driver2)
-
-        if avg_min == avg_driver1:
+        if delta < 0:
             faster_driver_number = driver1_number
             slower_driver_number = driver2_number
         else:
@@ -49,10 +47,10 @@ class RacePaceDiffCalculator:
 
     def get_rdiff_teammates_driver(self, driver1_number) -> SessionRacePaceDiff | None:
         dv.validate_driver_exists(self.result, driver1_number)
-        driver2 = sq.get_driver_teammate(driver1_number)
+        driver2 = sq.get_driver_teammate(driver1_number, self.session)
 
-        laps_driver1 = sq.get_driver_clean_laps(driver1_number)
-        laps_driver2 = sq.get_driver_clean_laps(driver2.DriverNumber)
+        laps_driver1 = sq.get_driver_clean_laps(driver1_number, self.session)
+        laps_driver2 = sq.get_driver_clean_laps(driver2.DriverNumber, self.session)
 
         if laps_driver1 is None or laps_driver2 is None:
             return None
@@ -61,19 +59,17 @@ class RacePaceDiffCalculator:
 
         delta = drpc.compare(laps_driver1, laps_driver2)
 
-        if avg_driver1 is None or avg_driver2 is None:
+        if avg_driver1 is None or avg_driver2 is None or delta is None:
             return None
 
-        avg_min = min(avg_driver1, avg_driver2)
-
-        if avg_min == avg_driver1:
+        if delta < 0:
             faster_driver_number = driver1_number
             slower_driver_number = driver2.DriverNumber
         else:
             faster_driver_number = driver2.DriverNumber
             slower_driver_number = driver1_number
 
-        team = sq.get_driver_team(driver1_number)
+        team = sq.get_driver_team(driver1_number, self.session)
 
         return SessionRacePaceDiff(driver1_number, driver2.DriverNumber,
                                    team, self.session, avg_driver1, avg_driver2, delta,

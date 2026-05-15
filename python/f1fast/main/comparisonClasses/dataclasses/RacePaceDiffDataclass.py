@@ -10,8 +10,8 @@ class SessionRacePaceDiff:
     avg_driver1: float
     avg_driver2: float
     delta: float
-    faster_driver_number: int
-    slower_driver_number: int
+    faster_driver_number: str
+    slower_driver_number: str
 
 @dataclass
 class RacePaceDiff:
@@ -19,5 +19,5 @@ class RacePaceDiff:
     driver2_number: str
     team: str
     delta: float
-    faster_driver_number: int
-    slower_driver_number: int
+    faster_driver_number: str
+    slower_driver_number: str

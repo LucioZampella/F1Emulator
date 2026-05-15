@@ -10,20 +10,20 @@ def compare(laps_1: Laps, laps_2: Laps) -> float | None:
         return None
 
     both = LapFilter.get_both_compounds(laps_1, laps_2)
-    final_delta = 0.0
-    final_weight = 0
+    weighted_delta_sum = 0.0
+    total_weight = 0
 
     for compound in both:
-        result = maths.refactor_delta_with_ponderation(laps_1, laps_2, compound, final_weight)
-
+        result = maths.refactor_delta_with_ponderation(laps_1, laps_2, compound)
         if result is None:
-            return None
+            continue
 
-        temp_delta, temp_weight, faster_avg = result
+        weighted_delta, weight, faster_avg = result
 
-        final_delta += (temp_delta / faster_avg) * 100
-        final_weight = temp_weight
+        delta_pct = (weighted_delta / faster_avg) * 100
+        weighted_delta_sum += delta_pct * weight
+        total_weight += weight
+    if total_weight == 0:
+        return None
 
-    diff = final_delta / final_weight
-
-    return diff
+    return weighted_delta_sum / total_weight
