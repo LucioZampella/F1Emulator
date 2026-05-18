@@ -77,3 +77,41 @@ class CareerRacePaceDiff:
             "faster_driver": str(self.faster_driver),
             "slower_driver": str(self.slower_driver),
         }
+
+@dataclass
+class DriverRacePace:
+    driver: DriverId
+    team: str
+    session_name: str
+    year: int
+    round_number: int
+    avg_seconds: float
+    delta_to_field_pct: float
+
+    def to_dict(self) -> dict:
+        return {
+            "driver": str(self.driver),
+            "team": self.team,
+            "session_name": self.session_name,
+            "year": self.year,
+            "round_number": self.round_number,
+            "avg_seconds": round(self.avg_seconds, 4),
+            "delta_to_field_pct": round(self.delta_to_field_pct, 4)
+        }
+
+@dataclass(frozen=True)
+class SeasonDriverPace:
+    driver: DriverId
+    team: str
+    year: int
+    races_counted: int
+    avg_delta_to_field_pct: float
+
+    def to_dict(self) -> dict:
+        return {
+            "driver": str(self.driver),
+            "team": self.team,
+            "year": self.year,
+            "races_counted": self.races_counted,
+            "avg_delta_to_field_pct": round(self.avg_delta_to_field_pct, 4),
+        }

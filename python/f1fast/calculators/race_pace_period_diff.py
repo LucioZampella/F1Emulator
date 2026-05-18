@@ -1,9 +1,9 @@
 import statistics
 import python.f1fast.exceptions.analysis_exceptions as e
 import python.f1fast.queries.schedule_query as schedule_query
-from python.f1fast.calculators.race_pace_diff_calculator import RacePaceDiffCalculator
+from python.f1fast.calculators.race_pace_diff_calculator import RacePaceDiffCalculator, FieldRacePaceCalculator
 from python.f1fast.domain.driver_id import DriverId
-from python.f1fast.domain.race_pace_result import SeasonRacePaceDiff
+from python.f1fast.domain.race_pace_result import SeasonRacePaceDiff, SeasonDriverPace
 from fastf1.events import EventSchedule
 
 
@@ -64,3 +64,54 @@ class RacePacePeriodDiff:
             faster_driver=faster,
             slower_driver=slower,
         )
+
+
+class SeasonFieldPace:
+
+    def __init__(self, schedule: EventSchedule):
+        self._sessions = schedule_query.get_all_racing_sessions(schedule)
+
+    def get_season_field_pace(self) -> list[SeasonDriverPace] | None:
+        driver_deltas: dict[DriverId, list[float]] = {}
+        driver_teams: dict[DriverId, str] = {}
+
+        for session in self._sessions:
+            try:
+                calc = RacePaceDiffCalculator(session)
+                teams = session.results["TeamName"].unique()
+                bilateral_results = []
+                for team in teams:
+                    try:
+                        result = calc.get_diff_for_team(team)
+                    except Exception:
+                        continue
+                    if result is not None:
+                        bilateral_results.append(result)
+
+                field_calc = FieldRacePaceCalculator(session)
+                paces = field_calc.get_all_driver_paces(bilateral_results)
+            except Exception:
+                continue
+
+            if paces is None:
+                continue
+
+            for pace in paces:
+                if pace.driver not in driver_deltas:
+                    driver_deltas[pace.driver] = []
+                    driver_teams[pace.driver] = pace.team
+                driver_deltas[pace.driver].append(pace.delta_to_field_pct)
+
+        if not driver_deltas:
+            return None
+
+        return sorted([
+            SeasonDriverPace(
+                driver=driver_id,
+                team=driver_teams[driver_id],
+                year=self._sessions[0].event.year,
+                races_counted=len(deltas),
+                avg_delta_to_field_pct=statistics.mean(deltas),
+            )
+            for driver_id, deltas in driver_deltas.items()
+        ], key=lambda x: x.avg_delta_to_field_pct)

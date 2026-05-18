@@ -50,3 +50,23 @@ def get_lap_count(laps: Laps) -> int:
 
 def get_average_seconds(laps: Laps) -> float:
     return laps["LapTime"].mean().total_seconds()
+
+def get_weighted_avg_seconds(laps: Laps) -> float | None:
+    compounds = laps["Compound"].unique()
+    weighted_sum = 0.0
+    total_weight = 0
+
+    for compound in compounds:
+        compound_laps = filter_by_compound(laps, compound)
+        if compound_laps is None:
+            continue
+        adjusted = adjust_fuel_consumption(compound_laps)
+        avg = get_average_seconds(adjusted)
+        weight = get_lap_count(compound_laps)
+        weighted_sum += avg * weight
+        total_weight += weight
+
+    if total_weight == 0:
+        return None
+
+    return weighted_sum / total_weight

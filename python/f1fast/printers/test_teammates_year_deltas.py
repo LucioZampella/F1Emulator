@@ -2,9 +2,9 @@ import fastf1
 from python.f1fast.calculators.race_pace_diff_calculator import RacePaceDiffCalculator
 import python.f1fast.queries.schedule_query as schedule_query
 
-TEAM = "Alpine"  # cambiá acá el equipo a debuggear
+TEAM = "Aston Martin"
 
-schedule = fastf1.get_event_schedule(2025)
+schedule = fastf1.get_event_schedule(2023)
 sessions = schedule_query.get_all_racing_sessions(schedule)
 
 for session in sessions:

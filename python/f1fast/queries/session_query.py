@@ -73,3 +73,7 @@ def get_driver_id_from_lastname(lastname: str, session: Session) -> DriverId:
 def get_driver_compounds(driver_id: DriverId, session: Session) -> list[str]:
     laps = session.laps.pick_drivers(driver_id.abbreviation)
     return list(laps["Compound"].unique())
+
+def get_fastest_qualy_lap(driver_id: DriverId, session: Session):
+    results = session.results
+    

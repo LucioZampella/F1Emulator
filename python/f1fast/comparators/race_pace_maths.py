@@ -4,8 +4,7 @@ import python.f1fast.validators.laps_validator as validator
 
 
 def compute_weighted_delta(laps1: Laps, laps2: Laps,
-                           compound: str) -> tuple[float, int, float] | None:
-
+                           compound: str) -> tuple[float, int, float, float, float] | None:
     laps_c1 = lap_filter.filter_by_compound(laps1, compound)
     laps_c2 = lap_filter.filter_by_compound(laps2, compound)
 
@@ -23,8 +22,7 @@ def compute_weighted_delta(laps1: Laps, laps2: Laps,
     delta = avg1 - avg2
     weight = min(lap_filter.get_lap_count(laps_c1), lap_filter.get_lap_count(laps_c2))
 
-    return delta, weight, faster_avg
-
+    return delta, weight, faster_avg, avg1, avg2
 
 def _get_fuel_adjusted_averages(laps1: Laps,
                                 laps2: Laps) -> tuple[float, float] | None:
