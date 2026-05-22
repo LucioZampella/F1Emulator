@@ -25,3 +25,27 @@ def get_all_racing_sessions(schedule: EventSchedule) -> list[Session]:
             logger.warning(f"No se pudo cargar la carrera de {event['EventName']}: {ex}")
 
     return sessions
+
+def get_all_qualifying_sessions(schedule: EventSchedule) -> list[Session]:
+
+    sessions = []
+    year = schedule.iloc[0]["EventDate"].year
+
+    for _, event in schedule.iterrows():
+        try:
+            if year >= 2024:
+                sprint_qualy = event.get_sprint_qualifying()
+            else:
+                sprint_qualy = event.get_sprint_shootout()
+            sprint_qualy.load()
+            sessions.append(sprint_qualy)
+        except Exception as ex:
+            logger.debug(f"Sin qualy sprint en {event['EventName']}: {ex}")
+        try:
+            qualy = event.get_qualifying()
+            qualy.load()
+            sessions.append(qualy)
+        except Exception as ex:
+            logger.warning(f"No se pudo cargar la qualy de {event['EventName']}: {ex}")
+
+    return sessions

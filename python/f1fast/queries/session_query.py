@@ -1,7 +1,9 @@
-from fastf1.core import Laps, Session
+from fastf1.core import Laps, Session, SessionResults
 import python.f1fast.exceptions.analysis_exceptions as e
 import python.f1fast.filters.lap_filter as lap_filter
 from python.f1fast.domain.driver_id import DriverId
+import python.f1fast.validators.session_validator as sv
+import pandas as pd
 
 
 def _get_result_row(driver_id: DriverId, session: Session):
@@ -74,6 +76,24 @@ def get_driver_compounds(driver_id: DriverId, session: Session) -> list[str]:
     laps = session.laps.pick_drivers(driver_id.abbreviation)
     return list(laps["Compound"].unique())
 
-def get_fastest_qualy_lap(driver_id: DriverId, session: Session):
+
+def get_fastest_qualy_lap(session: Session, driver_id: DriverId) -> float | None:
+    if sv.is_wet_session(session):
+        return None
+    year = session.date.year
+    if year >= 2024:
+        if not sv.is_qualifying_session_after_2023(session):
+            raise e.InvalidSessionError("Qualifying", "Race")
+    else:
+        if not sv.is_qualifying_session_before_2023(session):
+            raise e.InvalidSessionError("Qualifying", "Race")
+
     results = session.results
-    
+    row = results[results["Abbreviation"] == driver_id.abbreviation].iloc[0]
+
+    for q in ["Q3", "Q2", "Q1"]:
+        val = row[q]
+        if not pd.isna(val):
+            return val.total_seconds()
+
+    return None

@@ -1,5 +1,5 @@
 import fastf1
-from python.f1fast.calculators.race_pace_diff_calculator import RacePaceDiffCalculator
+from python.f1fast.calculators.race.race_pace_diff_calculator import RacePaceDiffCalculator
 import python.f1fast.queries.schedule_query as schedule_query
 
 TEAM = "Aston Martin"

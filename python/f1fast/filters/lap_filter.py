@@ -4,9 +4,11 @@ from fastf1.core import Laps
 MIN_CLEAN_AIR_MARGIN = 1.03
 KG_PER_LAP = 1.9
 TIME_PER_KG = 0.020
+WET_COMPOUNDS = ("Intermediate", "Wet")
 
 
 def filter_clean_air_laps(laps: Laps) -> Laps | None:
+    laps = discard_wet_laps(laps)
     compounds = laps["Compound"].unique()
 
     filtered_groups = []
@@ -70,3 +72,6 @@ def get_weighted_avg_seconds(laps: Laps) -> float | None:
         return None
 
     return weighted_sum / total_weight
+
+def discard_wet_laps(laps: Laps) -> Laps:
+    return laps[laps["Compound"] not in WET_COMPOUNDS]

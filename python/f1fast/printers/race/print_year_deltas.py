@@ -1,5 +1,5 @@
 import fastf1
-from python.f1fast.calculators.race_pace_period_diff import RacePacePeriodDiff, SeasonFieldPace
+from python.f1fast.calculators.race.race_pace_period_diff import RacePacePeriodDiff, SeasonFieldPace
 
 schedule = fastf1.get_event_schedule(2023)
 

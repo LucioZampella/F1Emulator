@@ -1,7 +1,7 @@
 import statistics
 import python.f1fast.exceptions.analysis_exceptions as e
 import python.f1fast.queries.schedule_query as schedule_query
-from python.f1fast.calculators.race_pace_diff_calculator import RacePaceDiffCalculator, FieldRacePaceCalculator
+from python.f1fast.calculators.race.race_pace_diff_calculator import RacePaceDiffCalculator, FieldRacePaceCalculator
 from python.f1fast.domain.driver_id import DriverId
 from python.f1fast.domain.race_pace_result import SeasonRacePaceDiff, SeasonDriverPace
 from fastf1.events import EventSchedule
