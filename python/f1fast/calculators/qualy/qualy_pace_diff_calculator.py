@@ -1,7 +1,7 @@
 from fastf1.core import Session
 from python.f1fast.domain.driver_id import DriverId
 import python.f1fast.queries.session_query as session_query
-from python.f1fast.domain.race_pace_result import DriverQualyPace, SessionQualyPaceDiff
+from python.f1fast.domain.driver_pace_result import DriverQualyPace, SessionQualyPaceDiff
 import python.f1fast.comparators.drivers_qualy_pace_comparator as comparator
 
 

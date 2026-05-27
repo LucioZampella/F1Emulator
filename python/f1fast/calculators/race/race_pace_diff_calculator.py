@@ -2,12 +2,12 @@ import statistics
 
 from fastf1.core import Session
 from python.f1fast.domain.driver_id import DriverId
-from python.f1fast.domain.race_pace_result import SessionRacePaceDiff
+from python.f1fast.domain.driver_pace_result import SessionRacePaceDiff
 import python.f1fast.exceptions.analysis_exceptions as e
 import python.f1fast.queries.session_query as session_query
 import python.f1fast.comparators.drivers_race_pace_comparator as comparator
 import python.f1fast.filters.lap_filter as lap_filter
-from python.f1fast.domain.race_pace_result import DriverRacePace
+from python.f1fast.domain.driver_pace_result import DriverRacePace
 import python.f1fast.validators.laps_validator as validator
 
 VALID_SESSION_TYPES = ("Race", "Sprint")

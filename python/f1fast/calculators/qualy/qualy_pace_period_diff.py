@@ -3,7 +3,7 @@ import python.f1fast.exceptions.analysis_exceptions as e
 import python.f1fast.queries.schedule_query as schedule_query
 from python.f1fast.calculators.qualy.qualy_pace_diff_calculator import QualyPaceDiffCalculator, FieldQualyPaceCalculator
 from python.f1fast.domain.driver_id import DriverId
-from python.f1fast.domain.race_pace_result import SeasonQualyPaceDiff, SeasonDriverQualyPace
+from python.f1fast.domain.driver_pace_result import SeasonQualyPaceDiff, SeasonDriverQualyPace
 from fastf1.events import EventSchedule
 
 
