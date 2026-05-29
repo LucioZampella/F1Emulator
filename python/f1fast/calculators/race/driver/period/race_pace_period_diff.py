@@ -1,24 +1,26 @@
 import statistics
 import python.f1fast.exceptions.analysis_exceptions as e
 import python.f1fast.queries.schedule_query as schedule_query
-from python.f1fast.calculators.qualy.qualy_pace_diff_calculator import QualyPaceDiffCalculator, FieldQualyPaceCalculator
+from python.f1fast.calculators.race.driver.session.race_pace_diff_calculator import RacePaceDiffCalculator, FieldRacePaceCalculator
 from python.f1fast.domain.driver_id import DriverId
-from python.f1fast.domain.driver_pace_result import SeasonQualyPaceDiff, SeasonDriverQualyPace
+from python.f1fast.domain.driver_pace_result import SeasonRacePaceDiff, SeasonDriverPace
 from fastf1.events import EventSchedule
 
 
-class QualyPacePeriodDiff:
+class RacePacePeriodDiff:
 
     def __init__(self, schedule: EventSchedule):
-        self._sessions = schedule_query.get_all_qualifying_sessions(schedule)
+        self._sessions = schedule_query.get_all_racing_sessions(schedule)
 
-    def get_season_diff_for_team(self, team: str) -> SeasonQualyPaceDiff | None:
-        gaps: list[float] = []
+    def get_season_diff_for_team(self, team: str) -> SeasonRacePaceDiff | None:
+        weighted_sum = 0
+        total_weight = 0
+        races = 0
         driver_ids: tuple[DriverId, DriverId] | None = None
 
         for session in self._sessions:
             try:
-                calc = QualyPaceDiffCalculator(session)
+                calc = RacePaceDiffCalculator(session)
                 result = calc.get_diff_for_team(team)
             except e.InvalidSessionError:
                 continue
@@ -43,41 +45,43 @@ class QualyPacePeriodDiff:
             else:
                 normalized_delta = -result.delta_pct
 
-            gaps.append(normalized_delta)
+            weighted_sum += normalized_delta * result.weight
+            total_weight += result.weight
+            races += 1
 
-        if not gaps or driver_ids is None:
+        if not total_weight != 0 or driver_ids is None:
             return None
 
-        avg_gap = statistics.mean(gaps)
+        avg_gap = weighted_sum / total_weight
         d1, d2 = driver_ids
         faster = d1 if avg_gap < 0 else d2
         slower = d2 if avg_gap < 0 else d1
         year = self._sessions[0].event.year
 
-        return SeasonQualyPaceDiff(
+        return SeasonRacePaceDiff(
             driver1=faster,
             driver2=slower,
             team=team,
             year=year,
-            races_counted=len(gaps),
+            races_counted=races,
             avg_delta_pct=-abs(avg_gap),
             faster_driver=faster,
             slower_driver=slower,
         )
 
 
-class SeasonFieldQualyPace:
+class SeasonFieldPace:
 
     def __init__(self, schedule: EventSchedule):
-        self._sessions = schedule_query.get_all_qualifying_sessions(schedule)
+        self._sessions = schedule_query.get_all_racing_sessions(schedule)
 
-    def get_season_field_pace(self) -> list[SeasonDriverQualyPace] | None:
+    def get_season_field_pace(self) -> list[SeasonDriverPace] | None:
         driver_deltas: dict[DriverId, list[float]] = {}
         driver_teams: dict[DriverId, str] = {}
 
         for session in self._sessions:
             try:
-                calc = QualyPaceDiffCalculator(session)
+                calc = RacePaceDiffCalculator(session)
                 teams = session.results["TeamName"].unique()
                 bilateral_results = []
                 for team in teams:
@@ -88,7 +92,7 @@ class SeasonFieldQualyPace:
                     if result is not None:
                         bilateral_results.append(result)
 
-                field_calc = FieldQualyPaceCalculator(session)
+                field_calc = FieldRacePaceCalculator(session)
                 paces = field_calc.get_all_driver_paces(bilateral_results)
             except Exception:
                 continue
@@ -106,7 +110,7 @@ class SeasonFieldQualyPace:
             return None
 
         return sorted([
-            SeasonDriverQualyPace(
+            SeasonDriverPace(
                 driver=driver_id,
                 team=driver_teams[driver_id],
                 year=self._sessions[0].event.year,

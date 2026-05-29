@@ -1,14 +1,13 @@
-import statistics
-
 from fastf1.core import Session
 from python.f1fast.domain.driver_id import DriverId
 from python.f1fast.domain.driver_pace_result import SessionRacePaceDiff
 import python.f1fast.exceptions.analysis_exceptions as e
 import python.f1fast.queries.session_query as session_query
-import python.f1fast.comparators.drivers_race_pace_comparator as comparator
+import python.f1fast.comparators.race.drivers_race_pace_comparator as comparator
 import python.f1fast.filters.lap_filter as lap_filter
 from python.f1fast.domain.driver_pace_result import DriverRacePace
 import python.f1fast.validators.laps_validator as validator
+import python.f1fast.validators.session_validator as sv
 
 VALID_SESSION_TYPES = ("Race", "Sprint")
 
@@ -46,6 +45,14 @@ class RacePaceDiffCalculator:
 
         delta, avg1, avg2 = result
 
+        if abs(delta) > 2.0:
+            return None
+
+        if sv.is_sprint(self._session):
+            weight = 0.25
+        else:
+            weight = 1.00
+
         faster = driver1 if delta < 0 else driver2
         slower = driver2 if delta < 0 else driver1
         avg_faster = avg1 if delta < 0 else avg2
@@ -63,6 +70,7 @@ class RacePaceDiffCalculator:
             delta_pct=-abs(delta),
             faster_driver=faster,
             slower_driver=slower,
+            weight=weight
         )
 
 class FieldRacePaceCalculator:

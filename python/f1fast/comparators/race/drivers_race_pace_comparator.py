@@ -1,7 +1,7 @@
 from fastf1.core import Laps
 import python.f1fast.filters.lap_filter as lap_filter
 import python.f1fast.validators.laps_validator as validator
-import python.f1fast.comparators.race_pace_maths as maths
+import python.f1fast.comparators.race.race_pace_maths as maths
 
 
 def compare(laps_1: Laps, laps_2: Laps) -> tuple[float, float, float] | None:

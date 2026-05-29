@@ -12,5 +12,4 @@ def compare(session: Session, driver1_id: DriverId, driver2_id: DriverId) -> tup
     faster_time = min(driver1_time, driver2_time)
     delta = ((driver1_time - driver2_time) / faster_time) * 100
 
-
     return delta, driver1_time, driver2_time

@@ -97,3 +97,4 @@ def get_fastest_qualy_lap(session: Session, driver_id: DriverId) -> float | None
             return val.total_seconds()
 
     return None
+

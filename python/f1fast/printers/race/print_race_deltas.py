@@ -1,6 +1,6 @@
 import fastf1
-from python.f1fast.calculators.race.race_pace_diff_calculator import FieldRacePaceCalculator
-from python.f1fast.calculators.race.race_pace_diff_calculator import RacePaceDiffCalculator
+from python.f1fast.calculators.race.driver.session.race_pace_diff_calculator import FieldRacePaceCalculator
+from python.f1fast.calculators.race.driver.session.race_pace_diff_calculator import RacePaceDiffCalculator
 
 session = fastf1.get_session(2025, "China", "Race")
 session.load()

@@ -16,6 +16,7 @@ class SessionRacePaceDiff:
     delta_pct: float
     faster_driver: DriverId
     slower_driver: DriverId
+    weight: float
 
     def to_dict(self) -> dict:
         return {
@@ -30,6 +31,7 @@ class SessionRacePaceDiff:
             "delta_pct": round(self.delta_pct, 4),
             "faster_driver": str(self.faster_driver),
             "slower_driver": str(self.slower_driver),
+            "weight": float,
         }
 
 
@@ -129,6 +131,7 @@ class SessionQualyPaceDiff:
     delta_pct: float
     faster_driver: DriverId
     slower_driver: DriverId
+    weight: float
 
     def to_dict(self) -> dict:
         return {
@@ -143,6 +146,7 @@ class SessionQualyPaceDiff:
             "delta_pct": round(self.delta_pct, 4),
             "faster_driver": str(self.faster_driver),
             "slower_driver": str(self.slower_driver),
+            "weight": float
         }
 
 @dataclass(frozen=True)

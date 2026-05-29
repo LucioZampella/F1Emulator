@@ -5,24 +5,71 @@ MIN_CLEAN_AIR_MARGIN = 1.03
 KG_PER_LAP = 1.9
 TIME_PER_KG = 0.020
 WET_COMPOUNDS = ("Intermediate", "Wet")
+MIN_GAP_AHEAD = 1.0
 
 
 def filter_clean_air_laps(laps: Laps) -> Laps | None:
+
     laps = discard_wet_laps(laps)
+
     compounds = laps["Compound"].unique()
 
     filtered_groups = []
+
+    session = laps.session
+
     for compound in compounds:
-        compound_laps = laps[laps["Compound"] == compound]
+
+        compound_laps = laps[
+            laps["Compound"] == compound
+        ]
+
         fastest = compound_laps["LapTime"].min()
-        clean = compound_laps[compound_laps["LapTime"] < fastest * MIN_CLEAN_AIR_MARGIN]
-        if not clean.empty:
-            filtered_groups.append(clean)
+
+        candidate_laps = compound_laps[
+            compound_laps["LapTime"] < fastest * MIN_CLEAN_AIR_MARGIN
+        ]
+
+        clean_laps = []
+
+        for _, lap in candidate_laps.iterlaps():
+
+            lap_start = lap["LapStartTime"]
+
+            other_laps = session.laps[
+                session.laps["Driver"] != lap["Driver"]
+            ]
+
+            previous_laps = other_laps[
+                other_laps["Time"] < lap_start
+            ]
+
+            if previous_laps.empty:
+                continue
+
+            closest_car = previous_laps.sort_values(
+                "Time"
+            ).iloc[-1]
+
+            gap = (
+                lap_start - closest_car["Time"]
+            ).total_seconds()
+
+            if gap > MIN_GAP_AHEAD:
+                clean_laps.append(lap)
+
+        if clean_laps:
+            filtered_groups.append(
+                Laps(clean_laps, session=session)
+            )
 
     if not filtered_groups:
         return None
 
-    return Laps(pd.concat(filtered_groups), session=laps.session)
+    return Laps(
+        pd.concat(filtered_groups),
+        session=session
+    )
 
 
 def adjust_fuel_consumption(laps: Laps,

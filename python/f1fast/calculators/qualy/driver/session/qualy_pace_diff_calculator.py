@@ -2,8 +2,8 @@ from fastf1.core import Session
 from python.f1fast.domain.driver_id import DriverId
 import python.f1fast.queries.session_query as session_query
 from python.f1fast.domain.driver_pace_result import DriverQualyPace, SessionQualyPaceDiff
-import python.f1fast.comparators.drivers_qualy_pace_comparator as comparator
-
+import python.f1fast.comparators.qualy.drivers_qualy_pace_comparator as comparator
+import python.f1fast.validators.session_validator as sv
 
 class QualyPaceDiffCalculator:
 
@@ -23,10 +23,19 @@ class QualyPaceDiffCalculator:
                       team: str) -> SessionQualyPaceDiff | None:
 
         result = comparator.compare(self._session, driver1, driver2)
+
         if result is None:
             return None
 
         delta, driver1_time, driver2_time = result
+
+        if abs(delta) > 2.0:
+            return None
+
+        if sv.is_sprint_q(self._session):
+            weight = 0.25
+        else:
+            weight = 1.00
 
         faster = driver1 if delta < 0 else driver2
         slower = driver2 if delta < 0 else driver1
@@ -45,6 +54,7 @@ class QualyPaceDiffCalculator:
             driver2_qualy=time_slower,
             faster_driver=faster,
             slower_driver=slower,
+            weight=weight
         )
 
 class FieldQualyPaceCalculator:
