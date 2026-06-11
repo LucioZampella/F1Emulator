@@ -98,3 +98,25 @@ def get_fastest_qualy_lap(session: Session, driver_id: DriverId) -> float | None
 
     return None
 
+def get_fastest_comparables_lap(session: Session, driver_id_1: DriverId, driver_id_2) -> list[float] | None:
+    if sv.is_wet_session(session):
+        return None
+    year = session.date.year
+    if year >= 2024:
+        if not sv.is_qualifying_session_after_2023(session):
+            raise e.InvalidSessionError("Qualifying", "Race")
+    else:
+        if not sv.is_qualifying_session_before_2023(session):
+            raise e.InvalidSessionError("Qualifying", "Race")
+
+    results = session.results
+    row_1 = results[results["Abbreviation"] == driver_id_1.abbreviation].iloc[0]
+    row_2 = results[results["Abbreviation"] == driver_id_2.abbreviation].iloc[0]
+
+    for q in ["Q3", "Q2", "Q1"]:
+        val_1 = row_1[q]
+        val_2 = row_2[q]
+        if not pd.isna(val_1) and not pd.isna(val_2):
+            return [val_1.total_seconds(), val_2.total_seconds()]
+
+    return None

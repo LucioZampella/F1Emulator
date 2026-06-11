@@ -3,8 +3,11 @@ from python.f1fast.domain.driver_id import DriverId
 from fastf1.core import Session
 
 def compare(session: Session, driver1_id: DriverId, driver2_id: DriverId) -> tuple[float, float, float] | None:
-    driver1_time = sq.get_fastest_qualy_lap(session, driver1_id)
-    driver2_time = sq.get_fastest_qualy_lap(session, driver2_id)
+    result = sq.get_fastest_comparables_lap(session, driver1_id, driver2_id)
+    if result is None:
+        return None
+
+    driver1_time, driver2_time = result
 
     if (driver1_time is None or driver2_time is None):
         return None

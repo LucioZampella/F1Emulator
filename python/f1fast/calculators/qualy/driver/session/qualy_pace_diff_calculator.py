@@ -65,9 +65,18 @@ class FieldQualyPaceCalculator:
     def get_all_driver_paces(self, results: list[SessionQualyPaceDiff]) -> list[DriverQualyPace] | None:
         driver_pace: dict[DriverId, tuple[str, float]] = {}
 
+        driver_teams: dict[DriverId, str] = {}
         for result in results:
-            driver_pace[result.driver1] = (result.team, result.driver1_qualy)
-            driver_pace[result.driver2] = (result.team, result.driver2_qualy)
+            driver_teams[result.driver1] = result.team
+            driver_teams[result.driver2] = result.team
+
+        for driver_id, team in driver_teams.items():
+            best = session_query.get_fastest_qualy_lap(self._session, driver_id)
+            if best is not None:
+                driver_pace[driver_id] = (team, best)
+
+        if not driver_pace:
+            return None
 
         ref_time = min(time for _, time in driver_pace.values())
 
@@ -83,4 +92,3 @@ class FieldQualyPaceCalculator:
             )
             for driver_id, (team, time) in driver_pace.items()
         ]
-

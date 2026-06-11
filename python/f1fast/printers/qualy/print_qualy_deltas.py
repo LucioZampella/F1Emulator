@@ -2,7 +2,7 @@ import fastf1
 from python.f1fast.calculators.qualy.driver.session.qualy_pace_diff_calculator import QualyPaceDiffCalculator
 from python.f1fast.calculators.qualy.driver.session.qualy_pace_diff_calculator import FieldQualyPaceCalculator
 import python.f1fast.calculators.qualy.team.session.team_qualy_pace_calculator as team_calculator
-session = fastf1.get_session(2026, "Canada", "Qualifying")
+session = fastf1.get_session(2026, "Monaco", "Qualifying")
 session.load()
 teams = session.results["TeamName"].unique()
 calc = QualyPaceDiffCalculator(session)
